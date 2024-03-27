@@ -24,7 +24,8 @@ Yaratacağınız data.frame nesnesinin sütun isimleri Excel'de bulunan değişk
 
 ```{r}
 # Excel dosyasındaki ham verileri data.frame formatında R'a ithal edin
-# havaK <- <kodu tamamla>
+library(readxl)
+havaK <- read_excel("Istanbul-Tuzla_Hava_Kalitesi_Haziran_2023.xlsx")
 ```
 
 ## Egzersiz 2 - Veri Kalite Kontrolü
@@ -32,20 +33,39 @@ Yaratacağınız data.frame nesnesinin sütun isimleri Excel'de bulunan değişk
 ### Zaman sütunu
 Zaman değerlerini içeren sütunun isminin **Time** olmasını sağlayın
 ```{r}
-#  <kodu tamamla>
+names(havaK)[1] <- "Time"
 ```
 
 
 *havaK$Time* adlı değişkendeki bütün verilerin **POSIXct** tipinde olmasını sağlayın. 
 
 ```{r}
-# <kodu tamamla>
+havaK$Time <- as.POSIXct(havaK$Time)
 ```
 
 *Time* sütunu dışındaki bütün sütunların tipinin **numeric** olmasını sağlayın. *havaK* nesnesinin ilk 10 satırının raporda gözükmesini sağlayın.
 
 ```{r}
-# <kodu tamamla>
+havaK<-havaK[-1,]
+havaK$`İstanbul - Tuzla` <- gsub(",","\\.",havaK$`İstanbul - Tuzla`)
+havaK$...3 <- gsub(",","\\.",havaK$...3)
+havaK$...4 <- gsub(",","\\.",havaK$...4)
+havaK$...5 <- gsub(",","\\.",havaK$...5)
+havaK$...6 <- gsub(",","\\.",havaK$...6)
+havaK$...7 <- gsub(",","\\.",havaK$...7)
+havaK$...8 <- gsub(",","\\.",havaK$...8)
+havaK$...9 <- gsub(",","\\.",havaK$...9)
+
+havaK$`İstanbul - Tuzla`<- as.numeric(havaK$`İstanbul - Tuzla`)
+havaK$...3<- as.numeric(havaK$...3)
+havaK$...4<- as.numeric(havaK$...4)
+havaK$...5<- as.numeric(havaK$...5)
+havaK$...6<- as.numeric(havaK$...6)
+havaK$...7<- as.numeric(havaK$...7)
+havaK$...8<- as.numeric(havaK$...8)
+havaK$...9<- as.numeric(havaK$...9)
+
+print(havaK)
 ```
 
 ## Egzersiz 3 - Veri Görselleme
@@ -56,5 +76,11 @@ Zaman değerlerini içeren sütunun isminin **Time** olmasını sağlayın
 
 ```{r}
 library(dygraphs)
-#  <kodu tamamla>
+dygraph(havaK[, c("Time", "İstanbul - Tuzla", "...3")], x = "Time") %>% 
+  dyAxis("y", label = "PM10") %>% 
+  dyAxis("y2", label = "PM2.5", independentTicks = TRUE) %>% 
+  dySeries("İstanbul - Tuzla", label = "PM10", axis = "y") %>% 
+  dySeries("...3", label = "PM2.5", axis = "y2") %>% 
+  dyRangeSelector()
+
 ```
