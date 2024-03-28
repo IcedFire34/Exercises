@@ -33,7 +33,9 @@ havaK <- read_excel("Istanbul-Tuzla_Hava_Kalitesi_Haziran_2023.xlsx")
 ### Zaman sütunu
 Zaman değerlerini içeren sütunun isminin **Time** olmasını sağlayın
 ```{r}
+names(havaK)<-havaK[1,]
 names(havaK)[1] <- "Time"
+havaK<-havaK[-1,]
 ```
 
 
@@ -46,26 +48,17 @@ havaK$Time <- as.POSIXct(havaK$Time)
 *Time* sütunu dışındaki bütün sütunların tipinin **numeric** olmasını sağlayın. *havaK* nesnesinin ilk 10 satırının raporda gözükmesini sağlayın.
 
 ```{r}
-havaK<-havaK[-1,]
-havaK$`İstanbul - Tuzla` <- gsub(",","\\.",havaK$`İstanbul - Tuzla`)
-havaK$...3 <- gsub(",","\\.",havaK$...3)
-havaK$...4 <- gsub(",","\\.",havaK$...4)
-havaK$...5 <- gsub(",","\\.",havaK$...5)
-havaK$...6 <- gsub(",","\\.",havaK$...6)
-havaK$...7 <- gsub(",","\\.",havaK$...7)
-havaK$...8 <- gsub(",","\\.",havaK$...8)
-havaK$...9 <- gsub(",","\\.",havaK$...9)
+havaK[-which(names(havaK) == "Time")] <- lapply(havaK[-which(names(havaK) == "Time")], function(x) {  
+  # Sayısal olmayan karakterleri ve boşlukları temizle    
+  x <- gsub("[^0-9,]", "", x)  
+  # Ondalık ayırıcıları noktaya çevir  #- olanları boş yapalım ki NA çevrilsin    
+  x <- gsub("-", "", x)  
+  x <- gsub(",", ".", x)  
+  # Sayısal değerlere dönüştür  
+  as.numeric(x)
+  })
 
-havaK$`İstanbul - Tuzla`<- as.numeric(havaK$`İstanbul - Tuzla`)
-havaK$...3<- as.numeric(havaK$...3)
-havaK$...4<- as.numeric(havaK$...4)
-havaK$...5<- as.numeric(havaK$...5)
-havaK$...6<- as.numeric(havaK$...6)
-havaK$...7<- as.numeric(havaK$...7)
-havaK$...8<- as.numeric(havaK$...8)
-havaK$...9<- as.numeric(havaK$...9)
-
-print(havaK)
+head(havaK, 10)
 ```
 
 ## Egzersiz 3 - Veri Görselleme
@@ -76,11 +69,11 @@ print(havaK)
 
 ```{r}
 library(dygraphs)
-dygraph(havaK[, c("Time", "İstanbul - Tuzla", "...3")], x = "Time") %>% 
+dygraph(havaK[, c("Time", "PM10 ( µg/m3 )", "PM 2.5 ( µg/m3 )")], x = "Time") %>% 
   dyAxis("y", label = "PM10") %>% 
   dyAxis("y2", label = "PM2.5", independentTicks = TRUE) %>% 
-  dySeries("İstanbul - Tuzla", label = "PM10", axis = "y") %>% 
-  dySeries("...3", label = "PM2.5", axis = "y2") %>% 
+  dySeries("PM10 ( µg/m3 )", label = "PM10 ( µg/m3 )", axis = "y") %>% 
+  dySeries("PM 2.5 ( µg/m3 )", label = "PM 2.5 ( µg/m3 )", axis = "y2") %>% 
   dyRangeSelector()
 
 ```
